@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="app_icon">resources/icons/app.png</file>
+        <file alias="app_login">resources/icons/login.jpg</file>
+        <file>style/stylesheet.qss</file>
+    </qresource>
+</RCC>
