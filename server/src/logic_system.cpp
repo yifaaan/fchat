@@ -4,7 +4,12 @@
 
 LogicSystem::LogicSystem() {
   RegisterGet("/get_test", [](std::shared_ptr<HttpConnection> connection) {
-    beast::ostream(connection->response_.body()) << "received get_test";
+    beast::ostream(connection->response_.body()) << "received get_test\n";
+    int i = 0;
+    for (auto& [key, value] : connection->get_params_) {
+      i++;
+      beast::ostream(connection->response_.body()) << i << ". " << key << "=" << value << "\n";
+    }
   });
 }
 
@@ -16,6 +21,7 @@ bool LogicSystem::HandleGet(const std::string& url, std::shared_ptr<HttpConnecti
   if (auto it = get_handlers_.find(url); it == get_handlers_.end()) {
     return false;
   } else {
+    std::cout << "handle get url: " << url << std::endl;
     it->second(connection);
     return true;
   }
