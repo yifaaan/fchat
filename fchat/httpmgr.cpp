@@ -1,6 +1,9 @@
 #include "httpmgr.h"
 
-HttpMgr::HttpMgr() {}
+HttpMgr::HttpMgr()
+{
+    connect(this, &HttpMgr::sig_http_finish, this, &HttpMgr::slot_http_finish);
+}
 
 void HttpMgr::PostHttpReq(QUrl url, const QJsonObject& json, Modules mod, ReqId req_id)
 {
@@ -23,4 +26,13 @@ void HttpMgr::PostHttpReq(QUrl url, const QJsonObject& json, Modules mod, ReqId 
         emit self->sig_http_finish(mod, req_id, res, ErrorCodes::kSuccess);
         reply->deleteLater();
     });
+}
+
+void HttpMgr::slot_http_finish(Modules mod, ReqId id, const QString &res, ErrorCodes err)
+{
+    if (mod == Modules::kRegisterMod)
+    {
+        // 通知对应模块其http响应已经收到
+        emit sig_reg_mod_finish(id, res, err);
+    }
 }

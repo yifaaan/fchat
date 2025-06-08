@@ -14,12 +14,8 @@ class HttpMgr : public QObject, public Singleton<HttpMgr>, public std::enable_sh
 {
     Q_OBJECT
 
-
-signals:
-    void sig_http_finished();
-
 public:
-    ~HttpMgr();
+    ~HttpMgr() = default;
 private:
     friend class Singleton<HttpMgr>;
     HttpMgr();
@@ -29,9 +25,13 @@ private:
 
     QNetworkAccessManager manager_;
 
+private slots:
+    void slot_http_finish(Modules mod, ReqId id, const QString& res, ErrorCodes err);
+
 signals:
     void sig_http_finish(Modules mod, ReqId id, const QString& res, ErrorCodes err);
-
+    // 通知注册模块已收到其http响应
+    void sig_reg_mod_finish(ReqId id, const QString& res, ErrorCodes err);
 };
 
 #endif // HTTPMGR_H

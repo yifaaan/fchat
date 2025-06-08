@@ -20,7 +20,7 @@ public:
         static std::once_flag flag;
         std::call_once(flag, [&]
         {
-            instance_ = new T;
+            instance_ = std::shared_ptr<T>(new T);
         });
         return instance_;
     }

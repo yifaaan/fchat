@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+#include "global.h"
+
 namespace Ui {
 class RegisterDialog;
 }
@@ -17,11 +19,16 @@ public:
 
 private slots:
     void on_get_code_btn_clicked();
+    // 处理http响应
+    void slot_reg_mod_finish(ReqId id, const QString& res, ErrorCodes err);
 
 private:
     void ShowTip(const QString& str, bool ok);
+    // 初始化http响应的回调函数
+    void InitHttpHandlers();
 
     Ui::RegisterDialog *ui;
+    QMap<ReqId, std::function<void(const QJsonObject&)>> handlers_;
 };
 
 #endif // REGISTERDIALOG_H
