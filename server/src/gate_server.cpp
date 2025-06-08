@@ -12,6 +12,7 @@ int main() {
       ioc.stop();
     });
     std::make_shared<CServer>(ioc, port)->Start();
+    std::cout << "Gate Server started on port " << port << std::endl;
     ioc.run();
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << "\n";
