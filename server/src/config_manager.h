@@ -25,7 +25,11 @@ struct SectionInfo {
 
 class ConfigManager {
  public:
-  ConfigManager();
+  static ConfigManager& GetInstance() {
+    static ConfigManager ins;
+    return ins;
+  }
+
   ConfigManager(const ConfigManager& other) = default;
   ConfigManager(ConfigManager&& other) = default;
   ConfigManager& operator=(const ConfigManager& other) = default;
@@ -40,6 +44,8 @@ class ConfigManager {
   }
 
  private:
+  ConfigManager();
+
   std::unordered_map<std::string, SectionInfo> sections_;
   inline static SectionInfo empty_section_info_;
 };

@@ -17,6 +17,7 @@ set(SERVER_SOURCES
     logic_system.cpp
     config_manager.cpp
     verify_client.cpp
+    io_context_pool.cpp
 )
 
 # 设置头文件
@@ -28,6 +29,7 @@ set(SERVER_HEADERS
     singleton.h
     config_manager.h
     verify_client.h
+    io_context_pool.h
 )
 
 # 将生成的protobuf文件添加到源文件列表

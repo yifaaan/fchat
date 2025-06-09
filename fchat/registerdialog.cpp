@@ -92,6 +92,7 @@ void RegisterDialog::InitHttpHandlers()
     handlers_.insert(ReqId::kGetVarifyCode, [this](const QJsonObject& json)
     {
         auto error = static_cast<ErrorCodes>(json["error"].toInt());
+        qDebug() << "error is: " << static_cast<int>(error);
         if (error != ErrorCodes::kSuccess)
         {
             ShowTip(tr("参数错误"), false);

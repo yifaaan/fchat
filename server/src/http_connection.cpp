@@ -48,7 +48,7 @@ std::string UrlDecode(const std::string& str) {
 
 }  // namespace
 
-HttpConnection::HttpConnection(tcp::socket socket) : socket_{std::move(socket)} {}
+HttpConnection::HttpConnection(net::io_context& ctx) : socket_{ctx} {}
 
 void HttpConnection::Start() {
   http::async_read(socket_, buffer_, request_,

@@ -29,7 +29,7 @@ async function GetVerifyCode(call, callback) {
 function main() {
     var server = new grpc.Server();
     server.addService(message_proto.VerifyService.service, { GetVerifyCode: GetVerifyCode })
-    server.bindAsync('0.0.0.0:50051', grpc.ServerCredentials.createInsecure(), (err, port) => {
+    server.bindAsync('127.0.0.1:50051', grpc.ServerCredentials.createInsecure(), (err, port) => {
         if (err) {
             return console.error(err);
         }

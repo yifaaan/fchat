@@ -2,6 +2,8 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include <queue>
+
 #include "const.h"
 #include "message.grpc.pb.h"
 #include "singleton.h"
@@ -13,6 +15,28 @@ using message::GetVerifyRequest;
 using message::GetVerifyResponse;
 using message::VerifyService;
 
+class RpcConnectionPool {
+ public:
+  RpcConnectionPool(size_t size, std::string host, std::string port);
+  ~RpcConnectionPool();
+
+  void Close();
+
+  std::unique_ptr<VerifyService::Stub> Get();
+  void Push(std::unique_ptr<VerifyService::Stub> stub);
+  size_t size() { return size_; }
+
+ private:
+  std::atomic<bool> stopped_;
+  size_t size_;
+  std::string host_;
+  std::string port_;
+
+  std::queue<std::unique_ptr<VerifyService::Stub>> connections_;
+  std::condition_variable cond_;
+  std::mutex mutex_;
+};
+
 class VerifyGrpcClient : public Singleton<VerifyGrpcClient> {
  public:
   friend class Singleton<VerifyGrpcClient>;
@@ -20,10 +44,7 @@ class VerifyGrpcClient : public Singleton<VerifyGrpcClient> {
   GetVerifyResponse GetVerifyCode(const std::string& email);
 
  private:
-  VerifyGrpcClient() {
-    std::shared_ptr<Channel> channel = grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials());
-    stub_ = VerifyService::NewStub(channel);
-  }
+  VerifyGrpcClient();
 
-  std::unique_ptr<VerifyService::Stub> stub_;
+  std::unique_ptr<RpcConnectionPool> pool_;
 };

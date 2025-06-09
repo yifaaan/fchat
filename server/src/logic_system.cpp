@@ -15,7 +15,7 @@ LogicSystem::LogicSystem() {
 
   RegisterPost("/get_verifycode", [](std::shared_ptr<HttpConnection> connection) {
     auto body_str = beast::buffers_to_string(connection->request_.body().data());
-    std::cout << "received post body: " << body_str << std::endl;
+    std::cout << "GateServer received client post body: " << body_str << std::endl;
     connection->response_.set(http::field::content_type, "text/json");
 
     nlohmann::json post_body;

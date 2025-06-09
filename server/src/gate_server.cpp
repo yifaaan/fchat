@@ -2,7 +2,7 @@
 #include "cserver.h"
 
 int main() {
-  ConfigManager config_manager;
+  auto& config_manager = ConfigManager::GetInstance();
   unsigned short gate_port = static_cast<unsigned short>(std::stoi(config_manager["GateServer"]["port"]));
   try {
     net::io_context ioc{1};
