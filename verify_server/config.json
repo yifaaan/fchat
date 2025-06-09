@@ -1,0 +1,18 @@
+{
+    "emal": {
+        "user": "958838084@qq.com",
+        "pass": "sgsfdlnpreigbcbd"
+    },
+    "mysql": {
+        "host": "localhost",
+        "port": 3306,
+        "user": "root",
+        "passwd": "123456",
+        "database": "fchat"
+    },
+    "redis": {
+        "host": "localhost",
+        "port": 6379,
+        "passwd": "123456"
+    }
+}

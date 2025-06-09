@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package message;
+
+// gRPC 服务定义
+service VerifyService {
+  rpc GetVerifyCode (GetVerifyRequest) returns (GetVerifyResponse) {};
+}
+
+// 请求消息
+message GetVerifyRequest {
+  string email = 1;         // 邮箱地址
+}
+
+// 响应消息
+message GetVerifyResponse {
+  int32  error = 1;         // 0 表示成功，其他为错误码
+  string email = 2;         // 回显邮箱
+  string code  = 3;         // 验证码
+}
