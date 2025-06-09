@@ -1,6 +1,7 @@
 #include "logic_system.h"
 
 #include "http_connection.h"
+#include "verify_server.h"
 
 LogicSystem::LogicSystem() {
   RegisterGet("/get_test", [](std::shared_ptr<HttpConnection> connection) {
@@ -12,7 +13,7 @@ LogicSystem::LogicSystem() {
     }
   });
 
-  RegisterPost("/get_varifycode", [](std::shared_ptr<HttpConnection> connection) {
+  RegisterPost("/get_verifycode", [](std::shared_ptr<HttpConnection> connection) {
     auto body_str = beast::buffers_to_string(connection->request_.body().data());
     std::cout << "received post body: " << body_str << std::endl;
     connection->response_.set(http::field::content_type, "text/json");
@@ -33,8 +34,10 @@ LogicSystem::LogicSystem() {
       beast::ostream(connection->response_.body()) << response_body.dump();
     } else {
       std::string email_str = email.get<std::string>();
+      // Call verify grpc server
+      auto verify_response = VerifyGrpcClient::GetInstance()->GetVerifyCode(email);
       std::cout << "post data: " << email_str << std::endl;
-      response_body["error"] = ErrorCodes::kSuccess;
+      response_body["error"] = verify_response.error();
       response_body["email"] = email_str;
       beast::ostream(connection->response_.body()) << response_body.dump();
     }

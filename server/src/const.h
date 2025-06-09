@@ -17,5 +17,5 @@ using tcp = boost::asio::ip::tcp;
 enum class ErrorCodes {
   kSuccess = 0,
   kErrorJson = 1001,
-  kRfcFailed = 1002,
+  kRpcFailed = 1002,
 };

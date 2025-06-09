@@ -14,7 +14,7 @@ unsigned char FromHex(unsigned char x) {
 
 std::string UrlEncode(const std::string& str) {
   std::string result;
-  for (int i = 0; i < str.size(); i++) {
+  for (size_t i = 0; i < str.size(); i++) {
     if (std::isalnum(str[i]) || str[i] == '-' || str[i] == '_' || str[i] == '.' || str[i] == '~') {
       result += str[i];
     } else if (str[i] == ' ') {
@@ -30,7 +30,7 @@ std::string UrlEncode(const std::string& str) {
 
 std::string UrlDecode(const std::string& str) {
   std::string result;
-  for (int i = 0; i < str.size(); i++) {
+  for (size_t i = 0; i < str.size(); i++) {
     if (str[i] == '+') {
       result += ' ';
     } else if (str[i] == '%') {

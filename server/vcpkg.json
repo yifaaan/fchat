@@ -1,0 +1,13 @@
+{
+    "name": "fchat-server",
+    "version": "1.0.0",
+    "description": "FChat Server with gRPC and HTTP support",
+    "dependencies": [
+        "boost-beast",
+        "boost-property-tree",
+        "nlohmann-json",
+        "protobuf",
+        "grpc",
+        "openssl"
+    ]
+}

@@ -3,7 +3,7 @@
 #include "http_connection.h"
 
 CServer::CServer(net::io_context& ioc, unsigned short port)
-    : ioc_{ioc}, acceptor_{ioc, tcp::endpoint{tcp::v4(), port}}, socket_{ioc} {}
+    : ioc_{ioc}, acceptor_{ioc, tcp::endpoint{net::ip::address_v4::loopback(), port}}, socket_{ioc} {}
 
 void CServer::Start() {
   acceptor_.async_accept(socket_, [self = shared_from_this()](const beast::error_code& ec) {
