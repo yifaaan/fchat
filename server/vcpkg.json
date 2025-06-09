@@ -8,6 +8,7 @@
         "nlohmann-json",
         "protobuf",
         "grpc",
-        "openssl"
+        "openssl",
+        "hiredis"
     ]
 }

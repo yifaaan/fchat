@@ -9,9 +9,7 @@ RpcConnectionPool::RpcConnectionPool(size_t size, std::string host, std::string 
   for (size_t i = 0; i < size; i++) {
     auto channel = grpc::CreateChannel(std::format("{}:{}", host_, port_), grpc::InsecureChannelCredentials());
     connections_.emplace(VerifyService::NewStub(channel));
-    std::cout << "Created RPC connection " << (i + 1) << "/" << size << std::endl;
   }
-
   std::cout << "RPC connection pool initialized successfully" << std::endl;
 }
 
@@ -54,14 +52,6 @@ VerifyGrpcClient::VerifyGrpcClient() {
   auto& port = config_manger["VerifyServer"]["port"];
 
   std::cout << "VerifyGrpcClient connecting to: " << host << ":" << port << std::endl;
-
-  if (host.empty()) {
-    std::cerr << "Warning: VerifyServer host is empty in config" << std::endl;
-  }
-  if (port.empty()) {
-    std::cerr << "Warning: VerifyServer port is empty in config" << std::endl;
-  }
-
   pool_ = std::make_unique<RpcConnectionPool>(8, host, port);
 }
 

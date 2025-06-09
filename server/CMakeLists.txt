@@ -13,6 +13,7 @@ find_package(nlohmann_json CONFIG REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS property_tree)
+find_package(hiredis CONFIG REQUIRED)  
 
 # 自定义函数：生成gRPC代码
 function(protobuf_generate_grpc_cpp SRCS HDRS)
