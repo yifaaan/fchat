@@ -1,6 +1,7 @@
 #ifndef REGISTERDIALOG_H
 #define REGISTERDIALOG_H
 
+
 #include <QDialog>
 
 #include "global.h"

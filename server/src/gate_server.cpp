@@ -3,11 +3,11 @@
 
 int main() {
   ConfigManager config_manager;
-  unsigned short gate_port = std::stoi(config_manager["GateServer"]["port"]);
+  unsigned short gate_port = static_cast<unsigned short>(std::stoi(config_manager["GateServer"]["port"]));
   try {
     net::io_context ioc{1};
     net::signal_set signals{ioc, SIGINT, SIGTERM};
-    signals.async_wait([&ioc](const boost::system::error_code& ec, int signal_number) {
+    signals.async_wait([&ioc](const boost::system::error_code& ec, [[maybe_unused]] int signal_number) {
       if (ec) {
         return;
       }

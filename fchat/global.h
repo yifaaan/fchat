@@ -10,6 +10,9 @@
 #include <QStyle>
 #include <QByteArray>
 #include <QNetworkReply>
+#include <QJsonObject>
+#include <QDir>
+#include <QSettings>
 
 
 // 刷新qss
@@ -35,5 +38,7 @@ enum class ErrorCodes
     kErrJson,
     kErrNetwork
 };
+
+inline QString GateUrlPrefix{""};
 
 #endif // GLOBAL_H

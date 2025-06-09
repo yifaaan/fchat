@@ -16,18 +16,18 @@ set(SERVER_SOURCES
     http_connection.cpp
     logic_system.cpp
     config_manager.cpp
+    verify_client.cpp
 )
 
 # 设置头文件
 set(SERVER_HEADERS
     cserver.h
     const.h
-    verify_server.h
     logic_system.h
     http_connection.h
     singleton.h
     config_manager.h
-    verify_server.h
+    verify_client.h
 )
 
 # 将生成的protobuf文件添加到源文件列表

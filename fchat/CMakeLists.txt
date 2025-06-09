@@ -7,6 +7,8 @@ qt_standard_project_setup()
 
 set(CMAKE_AUTORCC ON)
 
+set(CONFIG_IN ${CMAKE_CURRENT_SOURCE_DIR}/config.ini)
+
 qt_add_executable(fchat
     WIN32 MACOSX_BUNDLE
     main.cpp
@@ -22,6 +24,7 @@ qt_add_executable(fchat
     global.cpp
     singleton.h
     httpmgr.h httpmgr.cpp
+    config.ini
 )
 
 target_link_libraries(fchat
@@ -31,6 +34,15 @@ target_link_libraries(fchat
         Qt::Network
 )
 
+# ---------- 把 config.ini 复制到输出目录 ----------
+add_custom_command(TARGET fchat POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CONFIG_IN}"
+            "$<TARGET_FILE_DIR:fchat>/config.ini"
+    COMMENT "Copy config.ini next to the executable")
+#       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# $<TARGET_FILE_DIR:...> 这一行会在 Debug/Release 里自动变成正确的
+
 include(GNUInstallDirs)
 
 install(TARGETS fchat
@@ -38,6 +50,9 @@ install(TARGETS fchat
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
+
+# 把 config.ini 安装到同一目录
+install(FILES "${CONFIG_IN}" DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 qt_generate_deploy_app_script(
     TARGET fchat

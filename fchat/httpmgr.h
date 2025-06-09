@@ -16,12 +16,12 @@ class HttpMgr : public QObject, public Singleton<HttpMgr>, public std::enable_sh
 
 public:
     ~HttpMgr() = default;
+
+    void PostHttpReq(QUrl url, const QJsonObject& json, Modules mod, ReqId req_id);
+
 private:
     friend class Singleton<HttpMgr>;
     HttpMgr();
-
-
-    void PostHttpReq(QUrl url, const QJsonObject& json, Modules mod, ReqId req_id);
 
     QNetworkAccessManager manager_;
 

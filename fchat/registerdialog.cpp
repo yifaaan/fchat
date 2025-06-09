@@ -29,18 +29,25 @@ RegisterDialog::~RegisterDialog()
 
 void RegisterDialog::on_get_code_btn_clicked()
 {
+
     auto email = ui->email_edit->text();
     QRegularExpression regex(R"([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})");
     auto match = regex.match(email);
     if (match.hasMatch())
     {
-        // send code
+        // post get verify code
+        QJsonObject json_object;
+        json_object["email"] = email;
+
+        HttpMgr::GetInstance()->PostHttpReq(QUrl(GateUrlPrefix + "/get_verifycode"), json_object, Modules::kRegisterMod, ReqId::kGetVarifyCode);
     }
     else
     {
         ShowTip(tr("邮箱格式错误"), false);
     }
 }
+
+
 
 void RegisterDialog::slot_reg_mod_finish(ReqId id, const QString &res, ErrorCodes err)
 {

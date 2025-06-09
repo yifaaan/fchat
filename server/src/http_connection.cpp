@@ -3,6 +3,7 @@
 #include "logic_system.h"
 
 namespace {
+
 unsigned char ToHex(unsigned char x) { return x > 9 ? x + 55 : x + 48; }
 
 unsigned char FromHex(unsigned char x) {
@@ -12,6 +13,7 @@ unsigned char FromHex(unsigned char x) {
   return x - '0';
 }
 
+[[maybe_unused]]
 std::string UrlEncode(const std::string& str) {
   std::string result;
   for (size_t i = 0; i < str.size(); i++) {

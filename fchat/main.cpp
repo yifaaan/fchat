@@ -15,6 +15,15 @@ int main(int argc, char *argv[])
     } else {
         qDebug("Open failed");
     }
+
+    QString config_file_name = "config.ini";
+    auto app_path = QCoreApplication::applicationDirPath();
+    auto config_path = QDir::toNativeSeparators(app_path + QDir::separator() + config_file_name);
+    QSettings settings{config_path, QSettings::IniFormat};
+    auto host = settings.value("GateServer/host").toString();
+    auto port = settings.value("GateServer/port").toString();
+    GateUrlPrefix = "http://" + host + ":" + port;
+
     MainWindow w;
     w.show();
     return a.exec();

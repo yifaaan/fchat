@@ -1,7 +1,7 @@
 #include "logic_system.h"
 
 #include "http_connection.h"
-#include "verify_server.h"
+#include "verify_client.h"
 
 LogicSystem::LogicSystem() {
   RegisterGet("/get_test", [](std::shared_ptr<HttpConnection> connection) {
