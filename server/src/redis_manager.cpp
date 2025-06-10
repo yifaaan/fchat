@@ -72,9 +72,11 @@ bool RedisManager::Set(std::string_view key, std::string_view value) {
       (std::string_view{redis_reply_->str, redis_reply_->len} == "OK" ||
        std::string_view{redis_reply_->str, redis_reply_->len} == "ok")) {
     std::cout << std::format("Successfully execute command [ SET \"{}\" \"{}\" ]", key, value) << std::endl;
+    freeReplyObject(redis_reply_);
     return true;
   }
   std::cerr << std::format("[ SET \"{}\" \"{}\" ] failed", key, value) << std::endl;
+  freeReplyObject(redis_reply_);
   return false;
 }
 
@@ -86,10 +88,12 @@ bool RedisManager::Get(std::string_view key, std::string& value) {
   auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "GET %b", key.data(), key.size()));
   if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_STRING) {
     std::cerr << std::format("[ GET \"{}\" ] failed", key) << std::endl;
+    freeReplyObject(redis_reply_);
     return false;
   }
   value.assign(redis_reply_->str, redis_reply_->len);
   std::cout << std::format("Successfully execute command [ GET \"{}\" ]", key) << std::endl;
+  freeReplyObject(redis_reply_);
   return true;
 }
 
@@ -106,9 +110,11 @@ bool RedisManager::LPush(std::string_view key, std::string_view value) {
   }
   if (redis_reply_->type != REDIS_REPLY_INTEGER || redis_reply_->integer <= 0) {
     std::cerr << std::format("[ LPUSH \"{}\" \"{}\" ] failed", key, value) << std::endl;
+    freeReplyObject(redis_reply_);
     return false;
   }
   std::cout << std::format("Successfully execute command [ LPUSH \"{}\" \"{}\" ]", key, value) << std::endl;
+  freeReplyObject(redis_reply_);
   return true;
 }
 
@@ -125,9 +131,11 @@ bool RedisManager::RPush(std::string_view key, std::string_view value) {
   }
   if (redis_reply_->type != REDIS_REPLY_INTEGER || redis_reply_->integer <= 0) {
     std::cerr << std::format("[ RPush \"{}\" \"{}\" ] failed", key, value) << std::endl;
+    freeReplyObject(redis_reply_);
     return false;
   }
   std::cout << std::format("Successfully execute command [ RPush \"{}\" \"{}\" ]", key, value) << std::endl;
+  freeReplyObject(redis_reply_);
   return true;
 }
 
@@ -139,10 +147,12 @@ bool RedisManager::LPop(std::string_view key, std::string& value) {
   auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "LPOP %b", key.data(), key.size()));
   if (!redis_reply_ || redis_reply_->type == REDIS_REPLY_NIL) {
     std::cerr << std::format("[ LPop \"{}\" ] failed", key) << std::endl;
+    freeReplyObject(redis_reply_);
     return false;
   }
   value.assign(redis_reply_->str, redis_reply_->len);
   std::cout << std::format("Successfully execute command [ LPop \"{}\" ]", key) << std::endl;
+  freeReplyObject(redis_reply_);
   return true;
 }
 
@@ -154,10 +164,12 @@ bool RedisManager::RPop(std::string_view key, std::string& value) {
   auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "RPOP %b", key.data(), key.size()));
   if (!redis_reply_ || redis_reply_->type == REDIS_REPLY_NIL) {
     std::cerr << std::format("[ RPop \"{}\" ] failed", key) << std::endl;
+    freeReplyObject(redis_reply_);
     return false;
   }
   value.assign(redis_reply_->str, redis_reply_->len);
   std::cout << std::format("Successfully execute command [ RPop \"{}\" ]", key) << std::endl;
+  freeReplyObject(redis_reply_);
   return true;
 }
 
@@ -170,10 +182,12 @@ bool RedisManager::HSet(std::string_view key, std::string_view field, std::strin
                                                             field.data(), field.size(), value.data(), value.size()));
   if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_INTEGER) {
     std::cerr << std::format("[ HSet \"{}\" \"{}\" \"{}\" ] failed", key, field, value) << std::endl;
+    freeReplyObject(redis_reply_);
     return false;
   }
   std::cout << std::format("Successfully execute command [ HSet \"{}\" \"{}\" \"{}\" ]", key, field, value)
             << std::endl;
+  freeReplyObject(redis_reply_);
   return true;
 }
 
@@ -186,10 +200,12 @@ bool RedisManager::HGet(std::string_view key, std::string_view field, std::strin
       redisCommand(connection.get(), "HGET %b %b", key.data(), key.size(), field.data(), field.size()));
   if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_STRING) {
     std::cerr << std::format("[ HGet \"{}\" \"{}\" ] failed", key, field) << std::endl;
+    freeReplyObject(redis_reply_);
     return false;
   }
   value.assign(redis_reply_->str, redis_reply_->len);
   std::cout << std::format("Successfully execute command [ HGet \"{}\" \"{}\" ]", key, field) << std::endl;
+  freeReplyObject(redis_reply_);
   return true;
 }
 
@@ -201,9 +217,11 @@ bool RedisManager::Delete(std::string_view key) {
   auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "DEL %b", key.data(), key.size()));
   if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_INTEGER) {
     std::cerr << std::format("[ Delete \"{}\" ] failed", key) << std::endl;
+    freeReplyObject(redis_reply_);
     return false;
   }
   std::cout << std::format("Successfully execute command [ Delete \"{}\" ]", key) << std::endl;
+  freeReplyObject(redis_reply_);
   return true;
 }
 
@@ -215,8 +233,10 @@ bool RedisManager::ExistsKey(std::string_view key) {
   auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "EXISTS %b", key.data(), key.size()));
   if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_INTEGER || redis_reply_->integer == 0) {
     std::cerr << std::format("Not found [ Key \"{}\" ]", key) << std::endl;
+    freeReplyObject(redis_reply_);
     return false;
   }
   std::cout << std::format("Found [ Key \"{}\" ]", key) << std::endl;
+  freeReplyObject(redis_reply_);
   return true;
 }
