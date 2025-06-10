@@ -9,6 +9,7 @@
         "protobuf",
         "grpc",
         "openssl",
-        "hiredis"
+        "hiredis",
+        "spdlog"
     ]
 }

@@ -58,6 +58,7 @@ target_link_libraries(${PROJECT_NAME}
     # gRPC::grpc++_reflection
     Boost::property_tree
     hiredis::hiredis
+    spdlog::spdlog
 )
 
 add_custom_command(
