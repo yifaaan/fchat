@@ -2,6 +2,14 @@
 
 #include "config_manager.h"
 #include "cserver.h"
+#include "redis_manager.h"
+
+void TestRedis() {
+  RedisManager::GetInstance()->Set("test", "23123");
+  std::string value;
+  RedisManager::GetInstance()->Get("test", value);
+  std::cout << value << std::endl;
+}
 
 int main() {
   auto& config_manager = ConfigManager::GetInstance();

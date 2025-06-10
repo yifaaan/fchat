@@ -54,6 +54,7 @@ RedisManager::RedisManager() {
   const auto& host = config_manager["Redis"]["host"];
   unsigned short port = static_cast<unsigned short>(std::stoi(config_manager["Redis"]["port"]));
   const auto& password = config_manager["Redis"]["passwd"];
+  std::cerr << std::format("Redis host: {}, port: {}, password: {}", host, port, password) << std::endl;
   connection_pool_ = std::make_unique<RedisConnectionPool>(5, host, port, password);
 }
 
