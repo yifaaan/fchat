@@ -2,15 +2,48 @@
 
 #include <hiredis/hiredis.h>
 
+#include <queue>
+
 #include "singleton.h"
+
+class RedisConnectionPool {
+ private:
+  static constexpr auto RedisFree = [](redisContext* c) { redisFree(c); };
+
+ public:
+  using RedisContextPtr = std::unique_ptr<redisContext, decltype(RedisFree)>;
+  RedisConnectionPool(size_t size, std::string_view host, int port, std::string_view password);
+  ~RedisConnectionPool();
+
+  RedisContextPtr Get();
+
+  void Push(RedisContextPtr connection);
+
+  void Close();
+
+  size_t size() const { return size_; }
+
+ private:
+  size_t size_;
+  std::string host_;
+  int port_;
+  std::string password_;
+  std::mutex mutex_;
+  std::condition_variable cond_;
+  std::atomic<bool> stopped_;
+  std::queue<std::unique_ptr<redisContext, decltype(RedisFree)>> connections_;
+};
 
 class RedisManager : public Singleton<RedisManager> {
  public:
   friend class Singleton<RedisManager>;
 
+  RedisManager(const RedisManager&) = delete;
+  RedisManager& operator=(const RedisManager&) = delete;
+  RedisManager(RedisManager&&) = delete;
+  RedisManager& operator=(RedisManager&&) = delete;
   ~RedisManager() = default;
-  bool Connect(std::string_view host, int port);
-  bool Auth(std::string_view password);
+
   bool Set(std::string_view key, std::string_view value);
   bool Get(std::string_view key, std::string& value);
   bool LPush(std::string_view key, std::string_view value);
@@ -19,12 +52,11 @@ class RedisManager : public Singleton<RedisManager> {
   bool RPop(std::string_view key, std::string& value);
   bool HSet(std::string_view key, std::string_view field, std::string_view value);
   bool HGet(std::string_view key, std::string_view field, std::string& value);
+  bool Delete(std::string_view key);
+  bool ExistsKey(std::string_view key);
 
  private:
-  static constexpr auto RedisFree = [](redisContext* c) { redisFree(c); };
-  static constexpr auto RedisReplyFree = [](redisReply* r) { freeReplyObject(r); };
   RedisManager();
 
-  std::unique_ptr<redisContext, decltype(RedisFree)> redis_context_;
-  std::unique_ptr<redisReply, decltype(RedisReplyFree)> redis_reply_;
+  std::unique_ptr<RedisConnectionPool> connection_pool_;
 };

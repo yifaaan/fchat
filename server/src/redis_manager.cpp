@@ -2,26 +2,68 @@
 
 #include "config_manager.h"
 
+RedisConnectionPool::RedisConnectionPool(size_t size, std::string_view host, int port, std::string_view password)
+    : size_{size}, host_{host}, port_{port}, password_{password} {
+  for (size_t i = 0; i < size; ++i) {
+    auto redis_context = redisConnect(host.data(), port);
+    if (!redis_context || redis_context->err) {
+      redisFree(redis_context);
+      continue;
+    }
+    auto reply = static_cast<redisReply*>(redisCommand(redis_context, "AUTH %b", password.data(), password.size()));
+    if (!reply || reply->type != REDIS_REPLY_STATUS ||
+        (std::string_view{reply->str, reply->len} != "OK" && std::string_view{reply->str, reply->len} != "ok")) {
+      std::cerr << "Auth failed" << std::endl;
+      freeReplyObject(reply);
+      continue;
+    }
+    freeReplyObject(reply);
+    connections_.push(RedisContextPtr(redis_context, RedisFree));
+  }
+}
+
+RedisConnectionPool::RedisContextPtr RedisConnectionPool::Get() {
+  std::unique_lock lock{mutex_};
+  cond_.wait(lock, [this] { return !connections_.empty() || stopped_; });
+  if (stopped_) {
+    return nullptr;
+  }
+  auto connection = std::move(connections_.front());
+  connections_.pop();
+  return connection;
+}
+
+void RedisConnectionPool::Push(RedisContextPtr connection) {
+  if (!connection || connection->err) {
+    return;
+  }
+  std::lock_guard lock{mutex_};
+  connections_.push(std::move(connection));
+  cond_.notify_one();
+}
+
+void RedisConnectionPool::Close() {
+  stopped_ = true;
+  cond_.notify_all();
+}
+
+RedisConnectionPool::~RedisConnectionPool() { Close(); }
+
 RedisManager::RedisManager() {
   auto& config_manager = ConfigManager::GetInstance();
   const auto& host = config_manager["Redis"]["host"];
   unsigned short port = static_cast<unsigned short>(std::stoi(config_manager["Redis"]["port"]));
-  Connect(host, port);
-  Auth(config_manager["Redis"]["passwd"]);
-}
-
-bool RedisManager::Connect(std::string_view host, int port) {
-  redis_context_.reset(redisConnect(host.data(), port));
-  if (!redis_context_ || redis_context_->err) {
-    std::cerr << "Connect to redisServer failed" << std::endl;
-    return false;
-  }
-  return true;
+  const auto& password = config_manager["Redis"]["passwd"];
+  connection_pool_ = std::make_unique<RedisConnectionPool>(5, host, port, password);
 }
 
 bool RedisManager::Set(std::string_view key, std::string_view value) {
-  redis_reply_.reset(static_cast<redisReply*>(
-      redisCommand(redis_context_.get(), "SET %b %b", key.data(), key.size(), value.data(), value.size())));
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(
+      redisCommand(connection.get(), "SET %b %b", key.data(), key.size(), value.data(), value.size()));
   if (!redis_reply_) {
     std::cerr << std::format("[ SET \"{}\" \"{}\" ] failed", key, value) << std::endl;
     return false;
@@ -37,7 +79,11 @@ bool RedisManager::Set(std::string_view key, std::string_view value) {
 }
 
 bool RedisManager::Get(std::string_view key, std::string& value) {
-  redis_reply_.reset(static_cast<redisReply*>(redisCommand(redis_context_.get(), "GET %b", key.data(), key.size())));
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "GET %b", key.data(), key.size()));
   if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_STRING) {
     std::cerr << std::format("[ GET \"{}\" ] failed", key) << std::endl;
     return false;
@@ -47,23 +93,13 @@ bool RedisManager::Get(std::string_view key, std::string& value) {
   return true;
 }
 
-bool RedisManager::Auth(std::string_view password) {
-  redis_reply_.reset(
-      static_cast<redisReply*>(redisCommand(redis_context_.get(), "AUTH %b", password.data(), password.size())));
-  if (!redis_reply_) {
-    std::cerr << std::format("[ AUTH \"{}\" ] failed", password) << std::endl;
-    return false;
-  }
-  if (redis_reply_->type == REDIS_REPLY_ERROR) {
-    std::cerr << std::format("[ AUTH \"{}\" ] failed", password) << std::endl;
-    return false;
-  }
-  std::cout << std::format("Successfully execute command [ AUTH \"{}\" ]", password) << std::endl;
-  return true;
-}
 bool RedisManager::LPush(std::string_view key, std::string_view value) {
-  redis_reply_.reset(static_cast<redisReply*>(
-      redisCommand(redis_context_.get(), "LPUSH %b %b", key.data(), key.size(), value.data(), value.size())));
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(
+      redisCommand(connection.get(), "LPUSH %b %b", key.data(), key.size(), value.data(), value.size()));
   if (!redis_reply_) {
     std::cerr << std::format("[ LPUSH \"{}\" \"{}\" ] failed", key, value) << std::endl;
     return false;
@@ -77,8 +113,12 @@ bool RedisManager::LPush(std::string_view key, std::string_view value) {
 }
 
 bool RedisManager::RPush(std::string_view key, std::string_view value) {
-  redis_reply_.reset(static_cast<redisReply*>(
-      redisCommand(redis_context_.get(), "RPUSH %b %b", key.data(), key.size(), value.data(), value.size())));
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(
+      redisCommand(connection.get(), "RPUSH %b %b", key.data(), key.size(), value.data(), value.size()));
   if (!redis_reply_) {
     std::cerr << std::format("[ RPush \"{}\" \"{}\" ] failed", key, value) << std::endl;
     return false;
@@ -92,7 +132,11 @@ bool RedisManager::RPush(std::string_view key, std::string_view value) {
 }
 
 bool RedisManager::LPop(std::string_view key, std::string& value) {
-  redis_reply_.reset(static_cast<redisReply*>(redisCommand(redis_context_.get(), "LPOP %b", key.data(), key.size())));
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "LPOP %b", key.data(), key.size()));
   if (!redis_reply_ || redis_reply_->type == REDIS_REPLY_NIL) {
     std::cerr << std::format("[ LPop \"{}\" ] failed", key) << std::endl;
     return false;
@@ -103,7 +147,11 @@ bool RedisManager::LPop(std::string_view key, std::string& value) {
 }
 
 bool RedisManager::RPop(std::string_view key, std::string& value) {
-  redis_reply_.reset(static_cast<redisReply*>(redisCommand(redis_context_.get(), "RPOP %b", key.data(), key.size())));
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "RPOP %b", key.data(), key.size()));
   if (!redis_reply_ || redis_reply_->type == REDIS_REPLY_NIL) {
     std::cerr << std::format("[ RPop \"{}\" ] failed", key) << std::endl;
     return false;
@@ -114,9 +162,12 @@ bool RedisManager::RPop(std::string_view key, std::string& value) {
 }
 
 bool RedisManager::HSet(std::string_view key, std::string_view field, std::string_view value) {
-  redis_reply_.reset(
-      static_cast<redisReply*>(redisCommand(redis_context_.get(), "HSET %b %b %b", key.data(), key.size(), field.data(),
-                                            field.size(), value.data(), value.size())));
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "HSET %b %b %b", key.data(), key.size(),
+                                                            field.data(), field.size(), value.data(), value.size()));
   if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_INTEGER) {
     std::cerr << std::format("[ HSet \"{}\" \"{}\" \"{}\" ] failed", key, field, value) << std::endl;
     return false;
@@ -127,13 +178,45 @@ bool RedisManager::HSet(std::string_view key, std::string_view field, std::strin
 }
 
 bool RedisManager::HGet(std::string_view key, std::string_view field, std::string& value) {
-  redis_reply_.reset(static_cast<redisReply*>(
-      redisCommand(redis_context_.get(), "HGET %b %b", key.data(), key.size(), field.data(), field.size())));
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(
+      redisCommand(connection.get(), "HGET %b %b", key.data(), key.size(), field.data(), field.size()));
   if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_STRING) {
     std::cerr << std::format("[ HGet \"{}\" \"{}\" ] failed", key, field) << std::endl;
     return false;
   }
   value.assign(redis_reply_->str, redis_reply_->len);
   std::cout << std::format("Successfully execute command [ HGet \"{}\" \"{}\" ]", key, field) << std::endl;
+  return true;
+}
+
+bool RedisManager::Delete(std::string_view key) {
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "DEL %b", key.data(), key.size()));
+  if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_INTEGER) {
+    std::cerr << std::format("[ Delete \"{}\" ] failed", key) << std::endl;
+    return false;
+  }
+  std::cout << std::format("Successfully execute command [ Delete \"{}\" ]", key) << std::endl;
+  return true;
+}
+
+bool RedisManager::ExistsKey(std::string_view key) {
+  auto connection = connection_pool_->Get();
+  if (!connection) {
+    return false;
+  }
+  auto redis_reply_ = static_cast<redisReply*>(redisCommand(connection.get(), "EXISTS %b", key.data(), key.size()));
+  if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_INTEGER || redis_reply_->integer == 0) {
+    std::cerr << std::format("Not found [ Key \"{}\" ]", key) << std::endl;
+    return false;
+  }
+  std::cout << std::format("Found [ Key \"{}\" ]", key) << std::endl;
   return true;
 }
