@@ -91,3 +91,11 @@ set(SERVER_HEADERS
 4. **protobuf生成失败**
    - 检查protoc编译器是否正确安装
    - 确认gRPC插件可用
+
+
+start Redis
+sudo systemctl start redis-server
+redis-cli
+AUTH 123456
+
+

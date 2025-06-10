@@ -18,6 +18,7 @@ set(SERVER_SOURCES
     config_manager.cpp
     verify_client.cpp
     io_context_pool.cpp
+    redis_manager.cpp
 )
 
 # 设置头文件
@@ -30,6 +31,7 @@ set(SERVER_HEADERS
     config_manager.h
     verify_client.h
     io_context_pool.h
+    redis_manager.h
 )
 
 # 将生成的protobuf文件添加到源文件列表
