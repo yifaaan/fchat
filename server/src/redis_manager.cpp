@@ -112,3 +112,28 @@ bool RedisManager::RPop(std::string_view key, std::string& value) {
   std::cout << std::format("Successfully execute command [ RPop \"{}\" ]", key) << std::endl;
   return true;
 }
+
+bool RedisManager::HSet(std::string_view key, std::string_view field, std::string_view value) {
+  redis_reply_.reset(
+      static_cast<redisReply*>(redisCommand(redis_context_.get(), "HSET %b %b %b", key.data(), key.size(), field.data(),
+                                            field.size(), value.data(), value.size())));
+  if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_INTEGER) {
+    std::cerr << std::format("[ HSet \"{}\" \"{}\" \"{}\" ] failed", key, field, value) << std::endl;
+    return false;
+  }
+  std::cout << std::format("Successfully execute command [ HSet \"{}\" \"{}\" \"{}\" ]", key, field, value)
+            << std::endl;
+  return true;
+}
+
+bool RedisManager::HGet(std::string_view key, std::string_view field, std::string& value) {
+  redis_reply_.reset(static_cast<redisReply*>(
+      redisCommand(redis_context_.get(), "HGET %b %b", key.data(), key.size(), field.data(), field.size())));
+  if (!redis_reply_ || redis_reply_->type != REDIS_REPLY_STRING) {
+    std::cerr << std::format("[ HGet \"{}\" \"{}\" ] failed", key, field) << std::endl;
+    return false;
+  }
+  value.assign(redis_reply_->str, redis_reply_->len);
+  std::cout << std::format("Successfully execute command [ HGet \"{}\" \"{}\" ]", key, field) << std::endl;
+  return true;
+}

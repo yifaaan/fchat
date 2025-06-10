@@ -17,6 +17,8 @@ class RedisManager : public Singleton<RedisManager> {
   bool RPush(std::string_view key, std::string_view value);
   bool LPop(std::string_view key, std::string& value);
   bool RPop(std::string_view key, std::string& value);
+  bool HSet(std::string_view key, std::string_view field, std::string_view value);
+  bool HGet(std::string_view key, std::string_view field, std::string& value);
 
  private:
   static constexpr auto RedisFree = [](redisContext* c) { redisFree(c); };

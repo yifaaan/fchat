@@ -6,13 +6,11 @@
 
 void TestRedis() {
   auto redis_manager = RedisManager::GetInstance();
-  redis_manager->Set("f", "k");
-  redis_manager->LPush("ff", "f");
-  redis_manager->RPush("ff", "r");
+  redis_manager->HSet("f", "k", "v");
+  redis_manager->HSet("f", "k1", "v1");
+  redis_manager->HSet("f", "k1", "v2");
   std::string value;
-  redis_manager->LPop("ff", value);
-  std::cout << value << std::endl;
-  redis_manager->LPop("ff", value);
+  redis_manager->HGet("f", "k", value);
   std::cout << value << std::endl;
 }
 
