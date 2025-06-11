@@ -223,14 +223,14 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QLabel" name="varify_label">
+            <widget class="QLabel" name="verify_label">
              <property name="text">
               <string>验证码</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="varify_edit">
+            <widget class="QLineEdit" name="verify_edit">
              <property name="minimumSize">
               <size>
                <width>0</width>

@@ -23,6 +23,8 @@ private slots:
     // 处理http响应
     void slot_reg_mod_finish(ReqId id, const QString& res, ErrorCodes err);
 
+    void on_confirm_btn_clicked();
+
 private:
     void ShowTip(const QString& str, bool ok);
     // 初始化http响应的回调函数

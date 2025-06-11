@@ -18,4 +18,11 @@ enum class ErrorCodes {
   kSuccess = 0,
   kErrorJson = 1001,
   kRpcFailed = 1002,
+  kErrorVarifyCodeExpired = 1003,
+  kErrorVarifyCodeNotMatch = 1004,
+  kErrorUserAlreadyExists = 1005,
+  kErrorUserPasswdNotMatch = 1006,
+  kErrorEmailNotMatch = 1007,
+  kErrorUpdatePassword = 1008,
+  kInvalidPassword = 1009,
 };
