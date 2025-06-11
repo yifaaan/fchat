@@ -1,5 +1,5 @@
 #pragma once
-
+#include "win32_lean_mean.h"
 #include <grpcpp/grpcpp.h>
 
 #include <queue>
@@ -7,6 +7,7 @@
 #include "const.h"
 #include "message.grpc.pb.h"
 #include "singleton.h"
+
 
 using grpc::Channel;
 using grpc::ClientContext;

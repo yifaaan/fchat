@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 
 #include "http_connection.h"
+#include "mysql_manager.h"
 #include "redis_manager.h"
 #include "verify_client.h"
 
@@ -119,7 +120,14 @@ LogicSystem::LogicSystem() {
       return;
     }
 
-    // TODO:check user in mysql
+    // check user in mysql
+    int uid = MysqlManager::GetInstance()->RegisterUser(user, email, passwd);
+    if (uid == 0 || uid == -1) {
+      spdlog::info("User or email already exists");
+      response_body["error"] = ErrorCodes::kErrorUserAlreadyExists;
+      beast::ostream(connection->response_.body()) << response_body.dump();
+      return;
+    }
 
     response_body["error"] = ErrorCodes::kSuccess;
     response_body["email"] = email;

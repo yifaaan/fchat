@@ -2,10 +2,14 @@
 
 #include <hiredis/hiredis.h>
 
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
 #include <optional>
 #include <queue>
 
 #include "singleton.h"
+
 
 class RedisConnectionPool {
  private:

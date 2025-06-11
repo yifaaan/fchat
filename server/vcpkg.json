@@ -10,6 +10,7 @@
         "grpc",
         "openssl",
         "hiredis",
-        "spdlog"
+        "spdlog",
+        "mysql-connector-cpp"
     ]
 }

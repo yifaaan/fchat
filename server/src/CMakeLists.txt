@@ -19,6 +19,9 @@ set(SERVER_SOURCES
     verify_client.cpp
     io_context_pool.cpp
     redis_manager.cpp
+    mysql_pool.cpp
+    mysql_dao.cpp
+    mysql_manager.cpp
 )
 
 # 设置头文件
@@ -32,6 +35,9 @@ set(SERVER_HEADERS
     verify_client.h
     io_context_pool.h
     redis_manager.h
+    mysql_pool.h
+    mysql_dao.h
+    mysql_manager.h
 )
 
 # 将生成的protobuf文件添加到源文件列表
@@ -59,6 +65,7 @@ target_link_libraries(${PROJECT_NAME}
     Boost::property_tree
     hiredis::hiredis
     spdlog::spdlog
+    unofficial::mysql-connector-cpp::connector
 )
 
 add_custom_command(
