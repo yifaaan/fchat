@@ -4,13 +4,27 @@ const config_module = require('./config');
 const { SendMail } = require('./email');
 const const_module = require('./const');
 const { v4: uuidv4 } = require('uuid');
+const redis_module = require('./redis');
 
 async function GetVerifyCode(call, callback) {
     console.log("register email is ", call.request.email);
     try {
-        unique_id = uuidv4();
-        console.log("unique_id is ", unique_id);
-        let text_str = "verify code is " + unique_id + " , please use it in 5 minutes";
+        let code = await redis_module.Get(config_module.code_prefix + call.request.email);
+        console.log("code is ", code);
+        if (code == null) {
+            unique_id = uuidv4();
+            if (unique_id.length > 4) {
+                unique_id = unique_id.substring(0, 4);
+            }
+            let res = await redis_module.Set(config_module.code_prefix + call.request.email, unique_id, 300);
+            code = unique_id;
+            if (!res) {
+                callback(null, { email: call.request.email, error: const_module.Errors.RedisErr });
+                return;
+            }
+        }
+        console.log("unique_id is ", code);
+        let text_str = "verify code is " + code + " , please use it in 5 minutes";
         let mail_options = {
             from: config_module.email_user,
             to: call.request.email,
