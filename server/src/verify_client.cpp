@@ -1,3 +1,4 @@
+#include <boost/asio.hpp>
 #include "verify_client.h"
 
 #include "config_manager.h"

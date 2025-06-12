@@ -4,14 +4,14 @@
         "pass": "sgsfdlnpreigbcbd"
     },
     "mysql": {
-        "host": "localhost",
-        "port": 3306,
+        "host": "47.120.52.37",
+        "port": 33060,
         "user": "smooth",
         "passwd": "123456",
         "db": "fchat_db"
     },
     "redis": {
-        "host": "localhost",
+        "host": "47.120.52.37",
         "port": 6379,
         "passwd": "123456"
     }
