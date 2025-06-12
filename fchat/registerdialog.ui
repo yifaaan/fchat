@@ -179,6 +179,25 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="ClickLabel" name="pass_visible">
+             <property name="minimumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -218,6 +237,25 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="ClickLabel" name="confirm_visible">
+             <property name="minimumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -246,7 +284,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="get_code_btn">
+            <widget class="TimerButton" name="get_code_btn">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -382,6 +420,18 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TimerButton</class>
+   <extends>QPushButton</extends>
+   <header>timer_button.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ClickLabel</class>
+   <extends>QLabel</extends>
+   <header>click_label.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

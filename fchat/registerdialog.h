@@ -30,8 +30,19 @@ private:
     // 初始化http响应的回调函数
     void InitHttpHandlers();
 
+
+    void AddTipErr(TipErr err, const QString& msg);
+    void DelTipErr(TipErr err);
+
+    bool CheckUserValid();
+    bool CheckEmailValid();
+    bool CheckPasswdValid();
+    bool CheckVerifyValid();
+
     Ui::RegisterDialog *ui;
     QMap<ReqId, std::function<void(const QJsonObject&)>> handlers_;
+
+    QMap<TipErr, QString> tip_errors_;
 };
 
 #endif // REGISTERDIALOG_H

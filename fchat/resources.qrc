@@ -3,5 +3,9 @@
         <file alias="app_icon">resources/icons/app.png</file>
         <file alias="app_login">resources/icons/login.jpg</file>
         <file>style/stylesheet.qss</file>
+        <file>resources/unvisible.png</file>
+        <file>resources/unvisible_hover.png</file>
+        <file>resources/visible.png</file>
+        <file>resources/visible_hover.png</file>
     </qresource>
 </RCC>

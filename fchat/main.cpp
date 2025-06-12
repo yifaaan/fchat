@@ -2,7 +2,7 @@
 
 #include <QApplication>
 #include <qfile.h>
-
+#include "timer_button.h"
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

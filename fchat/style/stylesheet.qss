@@ -13,3 +13,29 @@ color: green
 #err_label[state='err'] {
 color: read
 }
+
+#pass_visible[state='unvisible'] {
+    border-image: url(:/resources/unvisible.png);
+}
+
+#pass_visible[state='unvisible_hover']{
+   border-image: url(:/resources/unvisible_hover.png);
+}
+#pass_visible[state='visible']{
+   border-image: url(:/resources/visible.png);
+}
+#pass_visible[state='visible_hover']{
+   border-image: url(:/resources/visible_hover.png);
+}
+#confirm_visible[state='unvisible']{
+   border-image: url(:/resources/unvisible.png);
+}
+#confirm_visible[state='unvisible_hover']{
+   border-image: url(:/resources/unvisible_hover.png);
+}
+#confirm_visible[state='visible']{
+   border-image: url(:/resources/visible.png);
+}
+#confirm_visible[state='visible_hover']{
+   border-image: url(:/resources/visible_hover.png);
+}

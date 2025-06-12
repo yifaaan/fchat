@@ -20,11 +20,14 @@ qt_add_executable(fchat
     logindialog.h logindialog.cpp logindialog.ui
     resources/icons/login.jpg
     registerdialog.h registerdialog.cpp registerdialog.ui
-    global.h
-    global.cpp
+
+
     singleton.h
     httpmgr.h httpmgr.cpp
     config.ini
+    global.h
+    timer_button.h timer_button.cpp
+    click_label.h click_label.cpp
 )
 
 target_link_libraries(fchat

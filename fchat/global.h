@@ -16,9 +16,20 @@
 
 
 // 刷新qss
-inline std::function<void(QWidget*)> Repolish = [](QWidget* w) {
+inline auto Repolish = [](QWidget* w) {
     w->style()->unpolish(w);
     w->style()->polish(w);
+};
+
+inline auto XorString = [](const QString& str)
+{
+    auto result = str;
+    auto len = str.length() % 255;
+    for (int i = 0; i < len; i++)
+    {
+        result[i] = QChar{str[i].unicode() ^ static_cast<char16_t>(len)};
+    }
+    return result;
 };
 
 enum class ReqId
@@ -37,6 +48,23 @@ enum class ErrorCodes
     kSuccess,
     kErrJson,
     kErrNetwork
+};
+
+enum class TipErr
+{
+    kTipSuccess,
+    kTipEmailErr,
+    kTipPasswdErr,
+    kTipConfirmERr,
+    kTipPasswdConfirmErr,
+    kTipVerifyErr,
+    kTipUserErr,
+};
+
+enum class ClickLabelState
+{
+    kNormal,
+    kSelect,
 };
 
 inline QString GateUrlPrefix{""};
