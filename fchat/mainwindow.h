@@ -22,7 +22,7 @@ public:
 public slots:
     // 收到logindialog的SwitchToRegister信号后，需要切换到注册界面
     void SlotSwitchToRegister();
-
+    void SlotSwitchToLogin();
 private:
     Ui::MainWindow *ui;
 

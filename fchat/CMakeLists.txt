@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+ cmake_minimum_required(VERSION 3.19)
 project(fchat LANGUAGES CXX)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
@@ -29,6 +29,8 @@ qt_add_executable(fchat
     timer_button.h timer_button.cpp
     click_label.h click_label.cpp
 )
+
+include_directories(${PROJECT_SOURCE_DIR})
 
 target_link_libraries(fchat
     PRIVATE

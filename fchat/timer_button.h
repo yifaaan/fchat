@@ -6,6 +6,7 @@
 
 class TimerButton : public QPushButton
 {
+    Q_OBJECT
 public:
     TimerButton(QWidget* parent = nullptr);
     ~TimerButton();

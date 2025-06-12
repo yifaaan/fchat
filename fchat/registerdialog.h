@@ -3,6 +3,7 @@
 
 
 #include <QDialog>
+#include <QTimer>
 
 #include "global.h"
 
@@ -25,6 +26,13 @@ private slots:
 
     void on_confirm_btn_clicked();
 
+    void on_register_return_btn_clicked();
+
+    void on_cancel_btn_clicked();
+
+signals:
+    void sig_switch_login();
+
 private:
     void ShowTip(const QString& str, bool ok);
     // 初始化http响应的回调函数
@@ -39,10 +47,15 @@ private:
     bool CheckPasswdValid();
     bool CheckVerifyValid();
 
+    void ChangeTipPage();
+
     Ui::RegisterDialog *ui;
     QMap<ReqId, std::function<void(const QJsonObject&)>> handlers_;
 
     QMap<TipErr, QString> tip_errors_;
+
+    QTimer* count_down_timer_;
+    int count_down_{5};
 };
 
 #endif // REGISTERDIALOG_H
