@@ -52,6 +52,7 @@ void MainWindow::SlotRegisterSwitchToLogin()
     login_dialog_->show();
     // 收到LoginDialog的SwitchToRegister信号后，调用槽函数切换到注册界面
     connect(login_dialog_, &LoginDialog::SwitchToRegister, this, &MainWindow::SlotSwitchToRegister);
+    connect(login_dialog_, &LoginDialog::SwitchToReset, this,  &MainWindow::SlotSwitchToReset);
 }
 
 void MainWindow::SlotResetSwitchToLogin()
@@ -64,6 +65,7 @@ void MainWindow::SlotResetSwitchToLogin()
     login_dialog_->show();
     // 收到LoginDialog的SwitchToReset信号后，调用槽函数切换到重置密码界面
     connect(login_dialog_, &LoginDialog::SwitchToReset, this, &MainWindow::SlotSwitchToReset);
+    connect(login_dialog_, &LoginDialog::SwitchToRegister, this, &MainWindow::SlotSwitchToRegister);
 }
 
 void MainWindow::SlotSwitchToReset()

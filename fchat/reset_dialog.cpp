@@ -216,3 +216,9 @@ void ResetDialog::slot_reset_mod_finish(ReqId id, const QString &res, ErrorCodes
     handlers_[id](json_doc.object());
 }
 
+
+void ResetDialog::on_return_btn_clicked()
+{
+    emit SigSwitchToLogin();
+}
+

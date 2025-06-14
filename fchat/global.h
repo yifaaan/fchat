@@ -37,12 +37,14 @@ enum class ReqId
     kGetVarifyCode = 1001,// 获取验证码
     kRegUser = 1002, // 注册用户
     kResetPwd = 1003, // 重置密码
+    kUserLogin = 1004, // 用户登陆
 };
 
 enum class Modules
 {
     kRegisterMod,
     kResetPwdMod,
+    kLoginMod,
 };
 
 enum class ErrorCodes

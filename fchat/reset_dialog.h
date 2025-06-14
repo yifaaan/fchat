@@ -17,13 +17,15 @@ public:
     ~ResetDialog();
 
 signals:
-    void SigSwitchToLogin(ResetDialog* dlg);
+    void SigSwitchToLogin();
 
 private slots:
     void on_confirm_btn_clicked();
 
     void on_verify_btn_clicked();
     void slot_reset_mod_finish(ReqId id, const QString &res, ErrorCodes err);
+    void on_return_btn_clicked();
+
 private:
     void InitHttpHandlers();
 

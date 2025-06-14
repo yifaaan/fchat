@@ -40,4 +40,8 @@ void HttpMgr::slot_http_finish(Modules mod, ReqId id, const QString &res, ErrorC
     {
         emit sig_rest_mod_finish(id, res, err);
     }
+    else if (mod == Modules::kLoginMod)
+    {
+        emit sig_login_mod_finish(id, res, err);
+    }
 }

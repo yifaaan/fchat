@@ -34,6 +34,8 @@ signals:
     void sig_reg_mod_finish(ReqId id, const QString& res, ErrorCodes err);
     // 通知重置密码模块已收到其http响应
     void sig_rest_mod_finish(ReqId id, const QString& res, ErrorCodes err);
+    // 通知登陆模块已收到其http响应
+    void sig_login_mod_finish(ReqId id, const QString& res, ErrorCodes err);
 };
 
 #endif // HTTPMGR_H
