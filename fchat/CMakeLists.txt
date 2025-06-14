@@ -28,6 +28,7 @@ qt_add_executable(fchat
     global.h
     timer_button.h timer_button.cpp
     click_label.h click_label.cpp
+    reset_dialog.h reset_dialog.cpp resetdialog.ui
 )
 
 include_directories(${PROJECT_SOURCE_DIR})

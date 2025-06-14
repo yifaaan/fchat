@@ -453,7 +453,7 @@
            <item>
             <widget class="QPushButton" name="register_return_btn">
              <property name="text">
-              <string>PushButton</string>
+              <string>返回登陆</string>
              </property>
             </widget>
            </item>

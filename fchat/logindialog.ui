@@ -44,7 +44,7 @@
       <widget class="QWidget" name="widget" native="true">
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="head_label">
           <property name="minimumSize">
            <size>
             <width>200</width>
@@ -169,7 +169,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="forget_label">
+        <widget class="ClickLabel" name="forget_label">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -299,6 +299,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClickLabel</class>
+   <extends>QLabel</extends>
+   <header>click_label.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>

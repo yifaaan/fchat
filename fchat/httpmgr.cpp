@@ -36,4 +36,8 @@ void HttpMgr::slot_http_finish(Modules mod, ReqId id, const QString &res, ErrorC
         // 通知对应模块其http响应已经收到
         emit sig_reg_mod_finish(id, res, err);
     }
+    else if (mod == Modules::kResetPwdMod)
+    {
+        emit sig_rest_mod_finish(id, res, err);
+    }
 }

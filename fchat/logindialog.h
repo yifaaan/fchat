@@ -17,8 +17,14 @@ public:
 
 signals:
     void SwitchToRegister();
+    void SwitchToReset();
+
+public slots:
+    void slot_forget_pwd();
 
 private:
+    void InitHead();
+
     Ui::LoginDialog *ui;
 
 };

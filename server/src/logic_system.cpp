@@ -137,6 +137,73 @@ LogicSystem::LogicSystem() {
     response_body["verify_code"] = verify_code;
     beast::ostream(connection->response_.body()) << response_body.dump();
   });
+
+  // reset pwd
+  RegisterPost("/reset_pwd", [](std::shared_ptr<HttpConnection> connection) {
+    auto body_str = beast::buffers_to_string(connection->request_.body().data());
+    std::cout << "GateServer received client post body: " << body_str << std::endl;
+    connection->response_.set(http::field::content_type, "text/json");
+
+    nlohmann::json post_body;
+    nlohmann::json response_body;
+    try {
+      post_body = nlohmann::json::parse(body_str);
+    } catch (const nlohmann::json::parse_error& e) {
+      std::cerr << "parse post json data error: " << e.what() << std::endl;
+      response_body["error"] = ErrorCodes::kErrorJson;
+      beast::ostream(connection->response_.body()) << response_body.dump();
+      return;
+    }
+
+    auto CheckJsonParams = [&](std::string_view key) {
+      if (auto value = post_body[key]; value.is_null()) {
+        spdlog::error("json params error: {}", key);
+        response_body["error"] = ErrorCodes::kErrorJson;
+        beast::ostream(connection->response_.body()) << response_body.dump();
+        return false;
+      }
+      return true;
+    };
+    if (!CheckJsonParams("user") || !CheckJsonParams("email") || !CheckJsonParams("passwd") ||
+        !CheckJsonParams("verify_code")) {
+      return;
+    }
+
+    auto user = post_body["user"].get<std::string>();
+    auto passwd = post_body["passwd"].get<std::string>();
+    auto email = post_body["email"].get<std::string>();
+    // check varify code
+    std::string verify_code;
+    auto ok = RedisManager::GetInstance()->Get(std::string{CodePrefix} + email, verify_code);
+    if (!ok) {
+      spdlog::info("get verify code expired");
+      response_body["error"] = ErrorCodes::kErrorVarifyCodeExpired;
+      beast::ostream(connection->response_.body()) << response_body.dump();
+      return;
+    }
+    if (verify_code != post_body["verify_code"].get<std::string>()) {
+      spdlog::info("verify code not match");
+      response_body["error"] = ErrorCodes::kErrorVarifyCodeNotMatch;
+      beast::ostream(connection->response_.body()) << response_body.dump();
+      return;
+    }
+
+    // check user in mysql
+    int uid = MysqlManager::GetInstance()->RegisterUser(user, email, passwd);
+    if (uid == 0 || uid == -1) {
+      spdlog::info("User or email already exists");
+      response_body["error"] = ErrorCodes::kErrorUserAlreadyExists;
+      beast::ostream(connection->response_.body()) << response_body.dump();
+      return;
+    }
+
+    response_body["error"] = ErrorCodes::kSuccess;
+    response_body["email"] = email;
+    response_body["user"] = user;
+    response_body["passwd"] = passwd;
+    response_body["verify_code"] = verify_code;
+    beast::ostream(connection->response_.body()) << response_body.dump();
+  });
 }
 
 void LogicSystem::RegisterGet(const std::string& url, HttpHandler handler) {

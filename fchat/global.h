@@ -36,18 +36,20 @@ enum class ReqId
 {
     kGetVarifyCode = 1001,// 获取验证码
     kRegUser = 1002, // 注册用户
+    kResetPwd = 1003, // 重置密码
 };
 
 enum class Modules
 {
-    kRegisterMod ,
+    kRegisterMod,
+    kResetPwdMod,
 };
 
 enum class ErrorCodes
 {
     kSuccess,
     kErrJson,
-    kErrNetwork
+    kErrNetwork,
 };
 
 enum class TipErr

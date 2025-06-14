@@ -18,6 +18,7 @@ RegisterDialog::RegisterDialog(QWidget *parent)
     ui->err_label->setProperty("state", "normal");
     Repolish(ui->err_label);
     ui->err_label->clear();
+    ui->register_return_label->clear();
 
 
 
@@ -184,7 +185,8 @@ void RegisterDialog::ChangeTipPage()
 
 void RegisterDialog::on_confirm_btn_clicked()
 {
-    if (!CheckUserValid() || !CheckEmailValid() || !CheckPasswdValid() || !CheckVerifyValid()) {
+    if (!CheckUserValid() || !CheckEmailValid() || !CheckPasswdValid() || !CheckVerifyValid())
+    {
         return;
     }
 
@@ -294,7 +296,6 @@ void RegisterDialog::on_cancel_btn_clicked()
 
 void RegisterDialog::on_get_code_btn_clicked()
 {
-    qDebug() << "FDSFSDFSDFSD";
     auto email = ui->email_edit->text();
     QRegularExpression regex(R"([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})");
     auto match = regex.match(email);
