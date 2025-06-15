@@ -18,3 +18,27 @@ message GetVerifyResponse {
   string email = 2;         // 回显邮箱
   string code  = 3;         // 验证码
 }
+
+
+
+service StatusService {
+  rpc GetChatServer (GetChatServerRequest) returns (GetChatServerResponse) {};
+}
+message GetChatServerRequest {
+  int32 uid = 1;
+}
+message GetChatServerResponse {
+  int32 error = 1;
+  string host = 2;
+  string port = 3;
+  string token = 4;
+}
+message LoginRequest {
+  int32 uid = 1;
+  string token = 2;
+}
+message LoginResponse {
+  int32 error = 1;
+  int32 uid = 2;
+  string token = 3;
+}

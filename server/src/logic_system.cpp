@@ -5,7 +5,8 @@
 #include "http_connection.h"
 #include "mysql_manager.h"
 #include "redis_manager.h"
-#include "verify_client.h"
+#include "verify_grpc_client.h"
+#include "status_grpc_client.h"
 
 namespace {
 
@@ -141,7 +142,7 @@ LogicSystem::LogicSystem() {
   // reset pwd
   RegisterPost("/reset_pwd", [](std::shared_ptr<HttpConnection> connection) {
     auto body_str = beast::buffers_to_string(connection->request_.body().data());
-    std::cout << "GateServer received client post body: " << body_str << std::endl;
+    spdlog::info("GateServer received client post body: {}", body_str);
     connection->response_.set(http::field::content_type, "text/json");
 
     nlohmann::json post_body;
@@ -149,7 +150,7 @@ LogicSystem::LogicSystem() {
     try {
       post_body = nlohmann::json::parse(body_str);
     } catch (const nlohmann::json::parse_error& e) {
-      std::cerr << "parse post json data error: " << e.what() << std::endl;
+      spdlog::error("parse post json data error: {}", e.what());
       response_body["error"] = ErrorCodes::kErrorJson;
       beast::ostream(connection->response_.body()) << response_body.dump();
       return;
@@ -202,6 +203,65 @@ LogicSystem::LogicSystem() {
     response_body["user"] = user;
     response_body["passwd"] = passwd;
     response_body["verify_code"] = verify_code;
+    beast::ostream(connection->response_.body()) << response_body.dump();
+  });
+
+  // reset pwd
+  RegisterPost("/user_login", [](std::shared_ptr<HttpConnection> connection) {
+    auto body_str = beast::buffers_to_string(connection->request_.body().data());
+    spdlog::info("GateServer received client post body: {}", body_str);
+    connection->response_.set(http::field::content_type, "text/json");
+
+    nlohmann::json post_body;
+    nlohmann::json response_body;
+    try {
+      post_body = nlohmann::json::parse(body_str);
+    } catch (const nlohmann::json::parse_error& e) {
+      spdlog::error("parse post json data error: {}", e.what());
+      response_body["error"] = ErrorCodes::kErrorJson;
+      beast::ostream(connection->response_.body()) << response_body.dump();
+      return;
+    }
+
+    auto CheckJsonParams = [&](std::string_view key) {
+      if (auto value = post_body[key]; value.is_null()) {
+        spdlog::error("json params error: {}", key);
+        response_body["error"] = ErrorCodes::kErrorJson;
+        beast::ostream(connection->response_.body()) << response_body.dump();
+        return false;
+      }
+      return true;
+    };
+    if (!CheckJsonParams("user") || !CheckJsonParams("passwd")) {
+      return;
+    }
+
+    auto user = post_body["user"].get<std::string>();
+    auto passwd = post_body["passwd"].get<std::string>();
+
+    // check user passwd in mysql
+    UserInfo user_info;
+    bool ok = MysqlManager::GetInstance()->CheckPasswd(user, passwd, user_info);
+    if (!ok) {
+      spdlog::info("User or passwd not match");
+      response_body["error"] = ErrorCodes::kErrorUserPasswdNotMatch;
+      beast::ostream(connection->response_.body()) << response_body.dump();
+      return;
+    }
+
+    // get connection from Status server
+    auto reply = StatusGrpcClient::GetInstance()->GetChatServer(user_info.uid);
+    if (reply.error() != static_cast<int32_t>(ErrorCodes::kSuccess)) {
+      spdlog::error("Get chat server failed");
+      response_body["error"] = reply.error();
+      beast::ostream(connection->response_.body()) << response_body.dump();
+      return;
+    }
+    spdlog::info("Get chat server success: {}", reply.host());
+    response_body["error"] = ErrorCodes::kSuccess;
+    response_body["email"] = user_info.email;
+    response_body["uid"] = user_info.uid;
+    response_body["token"] = reply.token();
     beast::ostream(connection->response_.body()) << response_body.dump();
   });
 }

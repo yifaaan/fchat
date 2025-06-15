@@ -12,6 +12,7 @@ LoginDialog::LoginDialog(QWidget *parent)
 {
     ui->setupUi(this);
     InitHead();
+    InitHttpHandlers();
     // 点击注册按钮后，LoginDialog收到clicked信号，然后发送SwitchToRegister信号给MainWindow
     connect(ui->reg_btn, &QPushButton::clicked, this, &LoginDialog::SwitchToRegister);
 
@@ -132,7 +133,7 @@ void LoginDialog::on_login_btn_clicked()
     auto pwd = ui->pass_edit->text();
     QJsonObject json;
     json["user"] = user;
-    json["pwd"] = pwd;
+    json["passwd"] = XorString(pwd);
     HttpMgr::GetInstance()->PostHttpReq(QUrl{GateUrlPrefix + "/user_login"}, json, Modules::kLoginMod, ReqId::kUserLogin);
 }
 

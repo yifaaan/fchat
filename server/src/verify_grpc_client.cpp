@@ -1,17 +1,18 @@
-#include <boost/asio.hpp>
-#include "verify_client.h"
+#include "verify_grpc_client.h"
 
+#include <boost/asio.hpp>
+#include <spdlog/spdlog.h>
 #include "config_manager.h"
 
 RpcConnectionPool::RpcConnectionPool(size_t size, std::string host, std::string port)
     : size_{size}, host_{std::move(host)}, port_{std::move(port)} {
-  std::cout << "Creating RPC connection pool with " << size << " connections to " << host_ << ":" << port_ << std::endl;
+  spdlog::info("Creating RPC connection pool with {} connections to {} {}", size, host_, port_);
 
   for (size_t i = 0; i < size; i++) {
     auto channel = grpc::CreateChannel(std::format("{}:{}", host_, port_), grpc::InsecureChannelCredentials());
     connections_.emplace(VerifyService::NewStub(channel));
   }
-  std::cout << "RPC connection pool initialized successfully" << std::endl;
+  spdlog::info("RPC connection pool initialized successfully");
 }
 
 void RpcConnectionPool::Close() {
@@ -20,7 +21,7 @@ void RpcConnectionPool::Close() {
 }
 
 RpcConnectionPool::~RpcConnectionPool() {
-  std::lock_guard lock{mutex_};
+  std::unique_lock lock{mutex_};
   Close();
   while (!connections_.empty()) {
     connections_.pop();

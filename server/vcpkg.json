@@ -5,6 +5,7 @@
     "dependencies": [
         "boost-beast",
         "boost-property-tree",
+        "boost-uuid",
         "nlohmann-json",
         "protobuf",
         "grpc",

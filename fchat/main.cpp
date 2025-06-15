@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
     auto host = settings.value("GateServer/host").toString();
     auto port = settings.value("GateServer/port").toString();
     GateUrlPrefix = "http://" + host + ":" + port;
+    qDebug() << GateUrlPrefix;
 
     MainWindow w;
     w.show();

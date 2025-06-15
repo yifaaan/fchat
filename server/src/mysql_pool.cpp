@@ -2,19 +2,6 @@
 
 #include "spdlog/spdlog.h"
 
-namespace {
-
-class Defer {
- public:
-  Defer(std::function<void()> func) : func_{std::move(func)} {}
-  ~Defer() { func_(); }
-
- private:
-  std::function<void()> func_;
-};
-
-}  // namespace
-
 SqlConnection::SqlConnection(std::unique_ptr<mysqlx::Session> session, uint64_t last_operation_time)
     : session_{std::move(session)}, last_operation_time_{last_operation_time} {}
 

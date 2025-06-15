@@ -8,11 +8,13 @@
 #include <queue>
 #include <thread>
 
-struct UserInfo {
-  std::string name;
-  std::string passwd;
-  std::string email;
-  int uid;
+class Defer {
+ public:
+  Defer(std::function<void()> func) : func_{std::move(func)} {}
+  ~Defer() { func_(); }
+
+ private:
+  std::function<void()> func_;
 };
 
 struct SqlConnection {
